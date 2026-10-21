@@ -1,5 +1,5 @@
 /**
- * Typed API client for the LazyOps AI backend.
+ * Typed API client for the Sloth Stack backend.
  * All functions throw ApiError on non-2xx responses.
  */
 

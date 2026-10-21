@@ -46,5 +46,7 @@ async def generate_briefing(
     """Trigger generation of a new daily briefing."""
     svc = BriefingService(db)
     briefing_id = await svc.create_pending()
+    # Commit before the background task opens its independent session.
+    await db.commit()
     background_tasks.add_task(svc.generate, briefing_id)
     return {"briefing_id": briefing_id, "status": "generating"}

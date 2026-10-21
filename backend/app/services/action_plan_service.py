@@ -1,7 +1,7 @@
 """Action plan management and approval execution service."""
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -76,12 +76,12 @@ class ActionPlanService:
             params = json.loads(action.parameters) if action.parameters else {}
             await execute_action(action.action_type, params, action.file_id)
             action.status = "succeeded"
-            action.executed_at = datetime.utcnow()
+            action.executed_at = datetime.now(UTC).replace(tzinfo=None)
         except Exception as exc:
             logger.error("Action %s execution failed: %s", action_id, exc)
             action.status = "failed"
             action.error_message = str(exc)[:512]
-            action.executed_at = datetime.utcnow()
+            action.executed_at = datetime.now(UTC).replace(tzinfo=None)
 
         await self.db.flush()
 

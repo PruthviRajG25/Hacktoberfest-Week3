@@ -9,7 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.services.action_plan_service import ActionPlanService
 
-router = APIRouter()
+# ── Sub-routers ───────────────────────────────────────────────────────────────
+# plans_router  → mounted at /action-plans   (list, get)
+# actions_router → mounted at /actions       (approve, reject)
+plans_router = APIRouter()
+actions_router = APIRouter()
+
+# Keep backward-compat name for the main router import
+router = plans_router
 
 
 class ProposedActionResponse(BaseModel):
@@ -67,7 +74,9 @@ def _plan_to_response(plan: object) -> ActionPlanResponse:
     )
 
 
-@router.get("/action-plans", response_model=ActionPlanListResponse)
+# ── /action-plans routes ──────────────────────────────────────────────────────
+
+@plans_router.get("", response_model=ActionPlanListResponse)
 async def list_action_plans(
     db: Annotated[AsyncSession, Depends(get_db)],
     skip: int = 0,
@@ -79,7 +88,7 @@ async def list_action_plans(
     return ActionPlanListResponse(plans=[_plan_to_response(p) for p in plans], total=total)
 
 
-@router.get("/action-plans/{plan_id}", response_model=ActionPlanResponse)
+@plans_router.get("/{plan_id}", response_model=ActionPlanResponse)
 async def get_action_plan(
     plan_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -90,7 +99,9 @@ async def get_action_plan(
     return _plan_to_response(plan)
 
 
-@router.post("/actions/{action_id}/approve", response_model=ProposedActionResponse)
+# ── /actions routes ───────────────────────────────────────────────────────────
+
+@actions_router.post("/{action_id}/approve", response_model=ProposedActionResponse)
 async def approve_action(
     action_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],
@@ -101,7 +112,7 @@ async def approve_action(
     return _action_to_response(action)
 
 
-@router.post("/actions/{action_id}/reject", response_model=ProposedActionResponse)
+@actions_router.post("/{action_id}/reject", response_model=ProposedActionResponse)
 async def reject_action(
     action_id: str,
     db: Annotated[AsyncSession, Depends(get_db)],

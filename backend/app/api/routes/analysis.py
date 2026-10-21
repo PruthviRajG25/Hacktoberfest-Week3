@@ -51,6 +51,8 @@ async def start_analysis(
     """Start an AI analysis job for a file."""
     svc = AnalysisService(db)
     job = await svc.create_job(body.file_id)
+    # Commit before the background task opens its independent session.
+    await db.commit()
     background_tasks.add_task(svc.run_job, job.id)
     return _job_to_response(job)
 

@@ -51,7 +51,7 @@ export default {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // LazyOps brand
+        // Sloth Stack brand
         violet: {
           50: 'hsl(270, 100%, 98%)',
           100: 'hsl(270, 95%, 95%)',

@@ -1,7 +1,7 @@
 """Analysis job orchestration service."""
 
 import json
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -66,7 +66,7 @@ class AnalysisService:
                     return
 
                 job.status = "running"
-                job.started_at = datetime.utcnow()
+                job.started_at = datetime.now(UTC).replace(tzinfo=None)
                 await db.commit()
 
                 # Get file record
@@ -85,7 +85,7 @@ class AnalysisService:
                 summary = await orchestrator.run(job, file_record)
 
                 job.status = "completed"
-                job.completed_at = datetime.utcnow()
+                job.completed_at = datetime.now(UTC).replace(tzinfo=None)
                 job.result_summary = json.dumps(summary)
 
                 # Audit
@@ -108,5 +108,5 @@ class AnalysisService:
                     if failed_job:
                         failed_job.status = "failed"
                         failed_job.error_message = str(exc)[:1024]
-                        failed_job.completed_at = datetime.utcnow()
+                        failed_job.completed_at = datetime.now(UTC).replace(tzinfo=None)
                         await err_db.commit()
