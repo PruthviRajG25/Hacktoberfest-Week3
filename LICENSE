@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 LazyOps AI Contributors
+Copyright (c) 2026 PRUTHVI RAJ .G
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,37 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## Third-Party Licenses
-
-### Model Weights
-
-This software does not bundle any AI model weights. Models are downloaded and
-run separately via Ollama. Model licenses vary by model:
-
-- **Llama 3.x**: Meta Llama 3 Community License Agreement
-- **Mistral**: Apache 2.0
-- **Qwen**: Apache 2.0 (Qwen2), Tongyi Qianwen License (some variants)
-- **Phi**: MIT (Phi-3)
-
-Users are responsible for reviewing and complying with the license terms of
-any model they download and use with this application.
-
-### Python Dependencies
-
-All Python dependencies are listed in `backend/pyproject.toml`. Licenses are
-documented in the `[project.optional-dependencies]` section or can be reviewed
-at https://pypi.org/.
-
-### Frontend Dependencies
-
-All frontend dependencies are listed in `frontend/package.json`. Key licenses:
-
-- React: MIT
-- Vite: MIT
-- Tailwind CSS: MIT
-- TanStack Query: MIT
-- Lucide React: ISC
-- Radix UI (shadcn/ui primitives): MIT
