@@ -1,0 +1,11 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Check, X } from 'lucide-react'
+import { approveAction, listActionPlans, rejectAction } from '@/lib/api-client'
+import { Button, Card, ErrorState, Loading, PageHeader } from '@/lib/ui'
+
+export function ActionPlansPage() {
+  const queryClient = useQueryClient()
+  const plans = useQuery({ queryKey: ['action-plans'], queryFn: () => listActionPlans({ limit: 100 }) })
+  const change = useMutation({ mutationFn: ({ id, approve }: { id: string; approve: boolean }) => approve ? approveAction(id) : rejectAction(id), onSuccess: () => queryClient.invalidateQueries({ queryKey: ['action-plans'] }) })
+  return <><PageHeader title="Action plans" description="Nothing executes until you explicitly approve it." />{plans.isLoading ? <Loading /> : plans.error ? <ErrorState message="Action plans could not be loaded." /> : <div className="space-y-5">{plans.data?.plans.map((plan) => <Card key={plan.id}><div className="mb-4 flex items-center justify-between"><div><h2 className="font-semibold">Plan {plan.id.slice(0, 8)}</h2><p className="text-xs text-muted-foreground">{plan.status} · {new Date(plan.created_at).toLocaleString()}</p></div></div><div className="divide-y">{plan.actions.map((action) => <div key={action.id} className="py-4 first:pt-0 last:pb-0"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="font-medium">{action.description}</p><p className="mt-1 text-sm text-muted-foreground">{action.rationale}</p><p className="mt-2 text-xs text-muted-foreground">{action.action_type} · {action.status}</p></div>{action.status === 'pending_approval' && <div className="flex shrink-0 gap-2"><Button onClick={() => change.mutate({ id: action.id, approve: true })} disabled={change.isPending}><Check size={15} className="mr-1 inline" />Approve</Button><Button variant="secondary" onClick={() => change.mutate({ id: action.id, approve: false })} disabled={change.isPending}><X size={15} className="mr-1 inline" />Reject</Button></div>}</div></div>)}</div></Card>)}{!plans.data?.plans.length && <Card><p className="text-center text-sm text-muted-foreground">No action plans yet. Analyze a file to create one.</p></Card>}</div>}</>
+}

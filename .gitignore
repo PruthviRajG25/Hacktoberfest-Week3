@@ -1,0 +1,71 @@
+# ─── Environment ─────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.env
+
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+
+# ─── Application Data ────────────────────────────────────────────────────────
+# Do NOT commit real user data or uploaded files
+data/
+!data/.gitkeep
+
+# ─── Node / Frontend ─────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.vite/
+*.tsbuildinfo
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── SQLite ──────────────────────────────────────────────────────────────────
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ─── Secrets ─────────────────────────────────────────────────────────────────
+*.pem
+*.key
+*.cert
+secrets/
+
+# ─── Docker ──────────────────────────────────────────────────────────────────
+.docker/
+
+# ─── OS ──────────────────────────────────────────────────────────────────────
+.DS_Store
+ehthumbs.db
+Desktop.ini
