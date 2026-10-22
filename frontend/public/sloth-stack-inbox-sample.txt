@@ -1,0 +1,26 @@
+SLOTH STACK INBOX ANALYZER SAMPLE
+
+This file is a safe local demo export. It contains no real messages or credentials.
+
+EMAIL 1
+From: priya@example.com
+Subject: Design review tomorrow
+Date: 2026-10-21
+Body: Please review the dashboard designs before the design review tomorrow at 10:00 AM.
+
+EMAIL 2
+From: billing@example.com
+Subject: October invoice available
+Date: 2026-10-20
+Body: Your October invoice is ready. Please download it by Friday for your records.
+
+EMAIL 3
+From: team@example.com
+Subject: Sprint planning
+Date: 2026-10-19
+Body: Add your priorities and blockers to the sprint planning document before Monday.
+
+MESSAGING NOTE
+Channel: Sloth Stack demo chat
+Author: demo-user
+Body: Remember to test the Gmail and WhatsApp connection links.

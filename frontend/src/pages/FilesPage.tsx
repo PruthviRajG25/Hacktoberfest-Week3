@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Brain, FileText, Trash2, Upload } from 'lucide-react'
-import { deleteFile, getAnalysis, listFiles, startAnalysis, uploadFile } from '@/lib/api-client'
+import { deleteFile, generateBriefing, getAnalysis, listFiles, startAnalysis, uploadFile } from '@/lib/api-client'
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, PageHeader, toast } from '@/lib/ui'
 import { formatBytes, formatDateTime, statusColor } from '@/lib/utils'
 import type { FileRecord } from '@/lib/types'
@@ -18,6 +18,10 @@ function useFileAnalysis() {
       toast('Analysis started — results will appear automatically.')
     },
     onError: () => toast('Analysis could not be started. Check Ollama status in Settings.', 'error'),
+  })
+  const report = useMutation({
+    mutationFn: generateBriefing,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['briefing'] }),
   })
 
   // Poll each active job
@@ -42,7 +46,10 @@ function useFileAnalysis() {
           return next
         })
         for (const j of done) {
-          if (j.status === 'completed') toast('Analysis complete — tasks and action plans updated.')
+          if (j.status === 'completed') {
+            report.mutate()
+            toast('Analysis complete — tasks and report updated.')
+          }
           else toast(`Analysis failed: ${j.error_message ?? 'Check Ollama status.'}`, 'error')
         }
       }
@@ -116,9 +123,10 @@ export function FilesPage() {
 
   const upload = useMutation({
     mutationFn: uploadFile,
-    onSuccess: (file) => {
+    onSuccess: async (file) => {
       queryClient.invalidateQueries({ queryKey: ['files'] })
-      toast(`"${file.original_name}" uploaded successfully.`)
+      await analyze.mutateAsync(file.id)
+      toast(`"${file.original_name}" uploaded and queued for task extraction.`)
     },
     onError: () => toast('Upload failed. Check the file type and size.', 'error'),
   })

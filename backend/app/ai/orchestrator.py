@@ -1,6 +1,7 @@
 """Agent orchestrator — coordinates AI analysis and action plan creation."""
 
 import json
+import re
 import uuid
 from datetime import datetime
 
@@ -9,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.ai.ollama_client import OllamaClient
 from app.ai.prompts import build_analysis_prompt
-from app.ai.schemas import AnalysisResultSchema
+from app.ai.schemas import AnalysisResultSchema, ExtractedTaskSchema
 from app.core.errors import InvalidModelResponseError, OllamaUnavailableError
 from app.core.logging import get_logger
 from app.db.models import ActionPlan, AnalysisJob, ExtractedTask, FileRecord, ProposedAction
@@ -87,6 +88,15 @@ class AgentOrchestrator:
         self, result: AnalysisResultSchema, job: AnalysisJob, file_record: FileRecord
     ) -> list[ExtractedTask]:
         """Persist extracted tasks with normalized deadlines."""
+        if not result.tasks:
+            result.tasks = self._fallback_tasks(file_record.extracted_text or "")
+            if result.tasks:
+                logger.info(
+                    "Model returned no tasks; extracted %d explicit fallback tasks for %s",
+                    len(result.tasks),
+                    file_record.original_name,
+                )
+
         tasks = []
         for task_schema in result.tasks:
             # Normalize deadline
@@ -109,6 +119,48 @@ class AgentOrchestrator:
 
         await self.db.flush()
         return tasks
+
+    @staticmethod
+    def _fallback_tasks(text: str) -> list[ExtractedTaskSchema]:
+        """Extract obvious action sentences when the model omits task items."""
+        tasks = []
+        seen: set[str] = set()
+        action_pattern = re.compile(
+            r"(?i)\b(?:please|remember to|action required:|todo:|to-do:|"
+            r"need to|must|should)\s+([^.!?\n]{5,240})"
+        )
+        deadline_pattern = re.compile(
+            r"(?i)(?:\b(?:by|before|due|on)\s+)?"
+            r"(today|tomorrow|tonight|monday|tuesday|wednesday|thursday|"
+            r"friday|saturday|sunday|next week|"
+            r"\d{4}[-/]\d{1,2}[-/]\d{1,2}|"
+            r"\d{1,2}(?:st|nd|rd|th)?\s+\w+)"
+        )
+        for line in text.splitlines():
+            cleaned = " ".join(line.strip().split())
+            if not cleaned:
+                continue
+            match = action_pattern.search(cleaned)
+            if not match:
+                continue
+            description = match.group(1).strip(" ,:-")
+            deadline_match = deadline_pattern.search(description)
+            deadline_raw = deadline_match.group(1) if deadline_match else None
+            if deadline_match:
+                description = description[:deadline_match.start()].strip(" ,:-")
+            key = description.casefold()
+            if len(description) < 5 or key in seen:
+                continue
+            seen.add(key)
+            tasks.append(
+                {
+                    "description": description[:500],
+                    "deadline_raw": deadline_raw,
+                    "priority": "high" if any(word in description.casefold() for word in ("urgent", "asap", "today")) else "medium",
+                    "confidence": 0.9,
+                }
+            )
+        return [ExtractedTaskSchema.model_validate(task) for task in tasks[:20]]
 
     async def _create_action_plan(
         self, result: AnalysisResultSchema, job: AnalysisJob, file_record: FileRecord

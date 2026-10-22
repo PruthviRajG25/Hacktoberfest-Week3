@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { listTasks, updateTask } from '@/lib/api-client'
 import type { ExtractedTask } from '@/lib/types'
 import { Badge, Button, Card, EmptyState, ErrorState, Loading, PageHeader, toast } from '@/lib/ui'
-import { formatDate, priorityColor, statusColor } from '@/lib/utils'
+import { formatDate, statusColor } from '@/lib/utils'
 
 interface CustomTodo {
   id: string
@@ -54,9 +54,12 @@ export function TasksPage() {
 
   // ── Inline edit state ───────────────────────────────────────────────────────
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [editingTodoId, setEditingTodoId] = useState<string | null>(null)
   const [editDescription, setEditDescription] = useState('')
   const [editDeadline, setEditDeadline] = useState('')
   const [editPriority, setEditPriority] = useState<ExtractedTask['priority']>('medium')
+  const [editTodoDescription, setEditTodoDescription] = useState('')
+  const [editTodoDeadline, setEditTodoDeadline] = useState('')
 
   useEffect(() => {
     const saved = window.localStorage.getItem(CUSTOM_TODOS_KEY)
@@ -111,6 +114,22 @@ export function TasksPage() {
   function deleteTodo(id: string) {
     setCustomTodos((items) => items.filter((item) => item.id !== id))
     toast('Todo removed.')
+  }
+
+  function startEditingTodo(todo: CustomTodo) {
+    setEditingTodoId(todo.id)
+    setEditTodoDescription(todo.description)
+    setEditTodoDeadline(todo.deadline)
+  }
+
+  function saveTodoEdit() {
+    const trimmed = editTodoDescription.trim()
+    if (!editingTodoId || !trimmed) return
+    setCustomTodos((items) => items.map((item) => item.id === editingTodoId
+      ? { ...item, description: trimmed, deadline: editTodoDeadline }
+      : item))
+    setEditingTodoId(null)
+    toast('Todo updated.')
   }
 
   return (
@@ -195,11 +214,28 @@ export function TasksPage() {
         )}
 
         {!tasks.isLoading && !tasks.error && !extractedTasks.length && (
-          <EmptyState
-            icon={<ListChecks size={40} />}
-            title="No extracted tasks yet"
-            description="Upload a document from the Files page and click Analyze to extract tasks with your local AI model."
-          />
+          <>
+            <EmptyState
+              icon={<ListChecks size={40} />}
+              title="No extracted tasks yet"
+              description="Upload the demo briefing from the Files page and click Analyze to extract tasks with your local AI model."
+            />
+            <div className="mt-5 rounded-xl border border-dashed bg-muted/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Demo task preview</p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {[
+                  ['Review the onboarding flow', 'Due tomorrow'],
+                  ['Download the quarterly invoice', 'Due Friday'],
+                  ['Add priorities to the sprint document', 'Due Monday'],
+                ].map(([description, deadline]) => (
+                  <div key={description} className="rounded-lg border bg-background p-3 text-sm">
+                    <p className="font-medium">{description}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{deadline} · medium priority</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         )}
 
         {!tasks.isLoading && !tasks.error && extractedTasks.length > 0 && (
@@ -276,13 +312,23 @@ export function TasksPage() {
                       <Edit3 size={15} className="mr-1 inline" />Edit
                     </Button>
                     {task.status === 'active' && (
-                      <Button
-                        variant="secondary"
-                        onClick={() => update.mutate({ id: task.id, status: 'completed' })}
-                        disabled={update.isPending}
-                      >
-                        <Check size={15} className="mr-1 inline" />Done
-                      </Button>
+                      <>
+                        <Button
+                          variant="secondary"
+                          onClick={() => update.mutate({ id: task.id, status: 'completed' })}
+                          disabled={update.isPending}
+                        >
+                          <Check size={15} className="mr-1 inline" />Done
+                        </Button>
+                        <Button
+                          variant="danger"
+                          onClick={() => update.mutate({ id: task.id, status: 'dismissed' })}
+                          disabled={update.isPending}
+                          title="Remove extracted task"
+                        >
+                          <Trash2 size={15} />
+                        </Button>
+                      </>
                     )}
                   </div>
                 </div>
@@ -324,14 +370,26 @@ export function TasksPage() {
                 {todo.imageData && (
                   <img src={todo.imageData} alt="" className="h-9 w-9 shrink-0 rounded object-cover" />
                 )}
-                <div className="min-w-0 flex-1">
-                  <p className={todo.completed ? 'font-medium text-muted-foreground line-through' : 'font-medium'}>
-                    {todo.description}
-                  </p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {todo.deadline ? `Due ${formatDate(todo.deadline)}` : 'No deadline'} &middot; Custom todo
-                  </p>
-                </div>
+                {editingTodoId === todo.id ? (
+                  <div className="grid min-w-0 flex-1 gap-2 sm:grid-cols-[1fr_160px_auto]">
+                    <input className="rounded-lg border bg-background px-3 py-2 text-sm" value={editTodoDescription} onChange={(e) => setEditTodoDescription(e.target.value)} aria-label="Edit custom todo description" autoFocus />
+                    <input type="date" className="rounded-lg border bg-background px-3 py-2 text-sm" value={editTodoDeadline} onChange={(e) => setEditTodoDeadline(e.target.value)} aria-label="Edit custom todo deadline" />
+                    <div className="flex gap-2">
+                      <Button onClick={saveTodoEdit} disabled={!editTodoDescription.trim()}>Save</Button>
+                      <Button variant="secondary" onClick={() => setEditingTodoId(null)}>Cancel</Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="min-w-0 flex-1">
+                    <p className={todo.completed ? 'font-medium text-muted-foreground line-through' : 'font-medium'}>{todo.description}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{todo.deadline ? `Due ${formatDate(todo.deadline)}` : 'No deadline'} &middot; Custom todo</p>
+                  </div>
+                )}
+                {editingTodoId !== todo.id && (
+                  <button type="button" className="shrink-0 text-muted-foreground transition-colors hover:text-primary" aria-label="Edit custom todo" onClick={() => startEditingTodo(todo)}>
+                    <Edit3 size={16} />
+                  </button>
+                )}
                 <button
                   type="button"
                   className="shrink-0 text-muted-foreground transition-colors hover:text-destructive"

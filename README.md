@@ -29,9 +29,26 @@ actions such as design reviews, invoice downloads, and sprint updates while
 preserving the original wording of relative deadlines like “tomorrow” and
 “before Monday”.
 
+For a fuller demo, use
+[frontend/public/sloth-stack-demo-briefing.txt](./frontend/public/sloth-stack-demo-briefing.txt).
+It contains five explicit actions with relative and calendar deadlines. Uploading
+from the Files page now starts analysis automatically; the resulting tasks appear
+in **Tasks**, where extracted tasks can be edited or completed and browser-saved
+custom todos can be edited, completed, and deleted.
+
 > Gmail, WhatsApp Web, and Slack buttons open their official web apps. They do
 > not collect credentials or silently scrape messages. Export or copy messages
 > locally before analysis.
+
+### Deploy the frontend to Vercel
+
+Set the Vercel project root to `frontend`. The included
+[frontend/vercel.json](./frontend/vercel.json) configures the Vite build and
+client-side routes. Set the `VITE_API_URL` environment variable to the public
+URL of the deployed FastAPI backend, then add the Vercel domain to the
+backend's comma-separated `ALLOWED_ORIGINS` setting. The backend still needs
+persistent database and file storage; Vercel is intended for the frontend
+unless the API is separately adapted for serverless execution.
 
 ## Architecture
 

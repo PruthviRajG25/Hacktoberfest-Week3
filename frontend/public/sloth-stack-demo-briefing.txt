@@ -1,0 +1,32 @@
+SLOTH STACK DEMO BRIEFING
+
+This synthetic document is designed to exercise file parsing, AI task extraction,
+deadline normalization, priorities, reports, and task editing.
+
+EMAIL 1 - Product review
+From: maya@example.com
+Subject: Review the onboarding flow
+Date: 2026-10-22
+Action required: Please review the onboarding flow and leave comments by tomorrow.
+
+EMAIL 2 - Finance
+From: finance@example.com
+Subject: Quarterly invoice
+Date: 2026-10-22
+Action required: Please download the quarterly invoice before Friday.
+
+EMAIL 3 - Team planning
+From: team@example.com
+Subject: Sprint priorities
+Date: 2026-10-22
+Action required: Add your top three priorities to the sprint document before Monday.
+
+EMAIL 4 - QA
+From: qa@example.com
+Subject: Release smoke test
+Date: 2026-10-22
+Action required: Please run the release smoke test on 2026-10-25 and report any blockers.
+
+CHAT NOTE
+Author: demo-user
+Remember to test the Gmail and WhatsApp connection links today.

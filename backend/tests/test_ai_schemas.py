@@ -9,6 +9,7 @@ from app.ai.schemas import (
     FileCategorySchema,
     FilenameSchema,
 )
+from app.ai.orchestrator import AgentOrchestrator
 
 
 class TestExtractedTaskSchema:
@@ -78,3 +79,15 @@ class TestAnalysisResultSchema:
                  for i in range(25)]
         with pytest.raises(ValidationError):
             AnalysisResultSchema(tasks=tasks)
+
+    def test_fallback_extracts_explicit_actions_and_deadlines(self):
+        tasks = AgentOrchestrator._fallback_tasks(
+            "Please review the launch plan by tomorrow.\n"
+            "Remember to download the invoice before Friday.\n"
+            "This line is informational only."
+        )
+
+        assert len(tasks) == 2
+        assert tasks[0].description == "review the launch plan"
+        assert tasks[0].deadline_raw == "tomorrow"
+        assert tasks[1].deadline_raw == "Friday"
