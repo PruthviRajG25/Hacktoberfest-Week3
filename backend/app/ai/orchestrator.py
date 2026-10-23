@@ -126,8 +126,10 @@ class AgentOrchestrator:
         tasks = []
         seen: set[str] = set()
         action_pattern = re.compile(
-            r"(?i)\b(?:please|remember to|action required:|todo:|to-do:|"
-            r"need to|must|should)\s+([^.!?\n]{5,240})"
+            r"(?im)(?:^\s*[-*]\s*(?:\[[ xX]\]\s*)?|"
+            r"\b(?:please|remember to|action required:|todo:|to-do:|"
+            r"need to|must|should)\s+)"
+            r"([^.!?\n]{5,240})"
         )
         deadline_pattern = re.compile(
             r"(?i)(?:\b(?:by|before|due|on)\s+)?"

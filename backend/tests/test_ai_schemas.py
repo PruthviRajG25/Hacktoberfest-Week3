@@ -91,3 +91,15 @@ class TestAnalysisResultSchema:
         assert tasks[0].description == "review the launch plan"
         assert tasks[0].deadline_raw == "tomorrow"
         assert tasks[1].deadline_raw == "Friday"
+
+    def test_fallback_extracts_checklist_actions(self):
+        tasks = AgentOrchestrator._fallback_tasks(
+            "- [ ] Review the onboarding flow by tomorrow.\n"
+            "- [x] Archive the notes next week."
+        )
+
+        assert [task.description for task in tasks] == [
+            "Review the onboarding flow",
+            "Archive the notes",
+        ]
+        assert [task.deadline_raw for task in tasks] == ["tomorrow", "next week"]

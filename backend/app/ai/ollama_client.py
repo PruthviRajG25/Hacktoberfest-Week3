@@ -95,6 +95,8 @@ class OllamaClient:
         payload = {
             "model": self.model,
             "prompt": prompt,
+            # Constrain Ollama's decoder so the response can be validated reliably.
+            "format": "json",
             "stream": False,
         }
         try:

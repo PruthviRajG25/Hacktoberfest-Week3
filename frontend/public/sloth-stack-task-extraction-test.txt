@@ -1,0 +1,16 @@
+SLOTH STACK TASK EXTRACTION TEST
+
+This synthetic document contains explicit action items for local testing.
+It contains no real messages, credentials, or personal information.
+
+PROJECT CHECKLIST
+
+- [ ] Review the onboarding flow and leave comments by tomorrow.
+- [ ] Download the quarterly invoice before Friday.
+- [ ] Add the top three priorities to the sprint document before Monday.
+- [ ] Run the release smoke test on 2026-10-25 and report blockers.
+
+FOLLOW-UP
+
+Please send the meeting notes to the team today.
+Remember to archive this test document next week.

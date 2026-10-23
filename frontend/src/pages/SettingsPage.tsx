@@ -39,7 +39,10 @@ export function SettingsPage() {
                 <h2 className="font-semibold">Connect your inboxes</h2>
                 <p className="mt-1 max-w-2xl text-sm text-muted-foreground">Open the official web apps, then export or copy messages into Sloth Stack for private local analysis. OAuth credentials are not stored by this demo.</p>
               </div>
-              <a href="/sloth-stack-inbox-sample.txt" download className="shrink-0 text-sm font-medium text-primary hover:underline">Download sample inbox</a>
+              <div className="flex shrink-0 gap-3 text-sm font-medium">
+                <a href="/sloth-stack-inbox-sample.txt" download className="text-primary hover:underline">Download sample inbox</a>
+                <a href="/sloth-stack-task-extraction-test.txt" download className="text-primary hover:underline">Download task test</a>
+              </div>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {[
@@ -53,7 +56,7 @@ export function SettingsPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-4 text-xs text-muted-foreground">To test the analyzer: download the sample inbox, upload it from Files, and select Analyze.</p>
+            <p className="mt-4 text-xs text-muted-foreground">To test the analyzer: download either sample, upload it from Files, and select Analyze. The task test document uses explicit checklist items for a deterministic extraction check.</p>
           </Card>
         </div>
       )}

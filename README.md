@@ -36,6 +36,11 @@ from the Files page now starts analysis automatically; the resulting tasks appea
 in **Tasks**, where extracted tasks can be edited or completed and browser-saved
 custom todos can be edited, completed, and deleted.
 
+For a deterministic extraction check, use
+[frontend/public/sloth-stack-task-extraction-test.txt](./frontend/public/sloth-stack-task-extraction-test.txt).
+Its six checklist and follow-up items are deliberately written as explicit actions,
+so it can also exercise the local fallback extractor when the model returns no tasks.
+
 > Gmail, WhatsApp Web, and Slack buttons open their official web apps. They do
 > not collect credentials or silently scrape messages. Export or copy messages
 > locally before analysis.
@@ -140,6 +145,8 @@ ollama list
 
 If Ollama is unavailable, uploads and custom browser-local todos still work;
 AI analysis reports the provider error instead of silently creating results.
+The analysis request also asks Ollama for JSON output explicitly, which prevents
+plain-text responses from being treated as valid task extraction results.
 
 ## Verification
 
